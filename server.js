@@ -2,6 +2,13 @@ const express = require('express');
 const colors = require('colors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const cors = require('cors');
 const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
@@ -19,11 +26,39 @@ const auth = require('./routes/auth');
 
 const app = express();
 
+//Body Parser
+
 app.use(express.json());
+
+//Cookie Parser
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+//Mongo sanitize
+app.use(mongoSanitize());
+
+//Helmet for security headers
+app.use(helmet());
+
+//To Prevent XSS Attacks
+app.use(xss());
+
+//API Limiter
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, //10 seconds
+  max: 100,
+});
+
+app.use(limiter);
+
+//hpp (http param pollution) prevention
+app.use(hpp());
+
+//Enable CORS
+app.use(cors());
 
 //Connect to DB
 

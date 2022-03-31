@@ -9,6 +9,8 @@ const RandExp = require('randexp');
 //@access  Private
 
 exports.createTicket = asyncHandler(async (req, res, next) => {
+  req.body.user = req.user.id;
+
   const generatePnr = () => {
     return new RandExp(/^[2468]\d{9}$/).gen();
   };
@@ -39,6 +41,32 @@ exports.createTicket = asyncHandler(async (req, res, next) => {
   const ticket = await Ticket.create(req.body);
 
   res.status(201).json({
+    success: true,
+    data: ticket,
+  });
+});
+
+//@desc    View tickets booked by user
+//@route   GET /irctc/v1/ticket
+//@access  Private
+
+exports.viewTickets = asyncHandler(async (req, res, next) => {
+  const tickets = await Ticket.find({ user: req.user.id });
+
+  res.status(200).json({
+    success: true,
+    data: tickets,
+  });
+});
+
+//@desc    Retrieve ticket by pnr
+//@route   POST /irctc/v1/ticket/search
+//@access  Public
+
+exports.viewTicketByPNR = asyncHandler(async (req, res, next) => {
+  const ticket = await Ticket.findOne({ pnr: req.body.pnr });
+
+  res.status(200).json({
     success: true,
     data: ticket,
   });

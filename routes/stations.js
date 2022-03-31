@@ -1,9 +1,19 @@
 const express = require('express');
 
-const { createStation } = require('../controllers/stations');
+const {
+  createStation,
+  updateStation,
+  deleteStation,
+} = require('../controllers/stations');
+const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.route('/').post(createStation);
+router.route('/').post(protect, authorize('admin'), createStation);
+
+router
+  .route('/:id')
+  .put(protect, authorize('admin'), updateStation)
+  .delete(protect, authorize('admin'), deleteStation);
 
 module.exports = router;

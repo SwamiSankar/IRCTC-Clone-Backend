@@ -44,6 +44,12 @@ UserSchema.virtual('tickets', {
   justOne: false,
 });
 
+UserSchema.pre('remove', async function (next) {
+  console.log('Assosiated tickets will be deleted');
+  await this.model('Ticket').deleteMany({ user: this._id });
+  next();
+});
+
 //Encrypt Password using bcrypt
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {

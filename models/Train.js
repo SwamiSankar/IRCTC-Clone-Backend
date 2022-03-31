@@ -36,6 +36,15 @@ const TrainSchema = new mongoose.Schema(
   }
 );
 
+TrainSchema.pre('remove', async function (next) {
+  console.log(
+    `Schedule and availability gonna be removed for the train ${this.name}`
+  );
+  await this.model('Schedule').deleteMany({ train: this._id });
+  await this.model('Seats').deleteMany({ train: this._id });
+  next();
+});
+
 TrainSchema.virtual('schedule', {
   ref: 'Schedule',
   localField: '_id',

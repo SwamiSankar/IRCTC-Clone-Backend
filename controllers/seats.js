@@ -8,13 +8,17 @@ const Train = require('../models/Train');
 //@access  Private
 
 exports.enterAvailability = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
   req.body.train = req.params.trainId;
   const train = await Train.findById(req.params.trainId);
 
   if (!train) {
     return next(
-      new ErrorResponse(`Train not found with id ${req.params.trainId}`),
-      404
+      new ErrorResponse(`Train not found with id ${req.params.trainId}`, 404)
     );
   }
 
@@ -51,5 +55,62 @@ exports.findAvailability = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: availability,
+  });
+});
+
+//@desc    Update Availability for a particular slot
+//@route   PUT /irctc/v1/seats/:id
+//@access  Private
+
+exports.updateAvailability = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
+  let seats = await Seats.findById(req.params.id);
+
+  if (!seats) {
+    return next(
+      new ErrorResponse(`Seats not found with id ${req.params.id}`),
+      404
+    );
+  }
+
+  seats = await Seats.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: seats,
+  });
+});
+
+//@desc    Delete Availability for a particular slot
+//@route   DELETE /irctc/v1/seats/:id
+//@access  Private
+
+exports.deleteAvailability = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
+  let seats = await Seats.findById(req.params.id);
+
+  if (!seats) {
+    return next(
+      new ErrorResponse(`Seats not found with id ${req.params.id}`),
+      404
+    );
+  }
+
+  seats.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });

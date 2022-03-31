@@ -11,7 +11,13 @@ const Seats = require('../models/Availability');
 //@access  Private
 
 exports.createTrain = asyncHandler(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
   const train = await Train.create(req.body);
+
   res.status(201).json({
     success: true,
     data: train,
@@ -68,5 +74,61 @@ exports.getTrainBetweenStations = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: resultArray,
+  });
+});
+
+//@desc    Update train details
+//@route   PUT /irctc/v1/trains/:id
+//@access  Private
+
+exports.updateTrain = asyncHandler(async (req, res, next) => {
+  let train = await Train.findById(req.params.id);
+
+  if (!train) {
+    return next(
+      new ErrorResponse(`No train found by id ${req.params.id}`, 404)
+    );
+  }
+
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
+  train = await Train.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: train,
+  });
+});
+
+//@desc    Delete train details
+//@route   DELETE /irctc/v1/trains/:id
+//@access  Private
+
+exports.deleteTrain = asyncHandler(async (req, res, next) => {
+  let train = await Train.findById(req.params.id);
+
+  if (!train) {
+    return next(
+      new ErrorResponse(`No train found by id ${req.params.id}`, 404)
+    );
+  }
+
+  if (req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse('User is not authorized for this route', 401)
+    );
+  }
+
+  train.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
