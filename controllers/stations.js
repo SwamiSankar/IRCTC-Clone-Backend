@@ -20,6 +20,18 @@ exports.createStation = asyncHandler(async (req, res, next) => {
   });
 });
 
+//@desc    Get all station
+//@route   GET /irctc/v1/station
+//@access  Public
+exports.getStations = asyncHandler(async (req, res, next) => {
+  const stations = await Station.find();
+
+  res.status(200).json({
+    success: true,
+    data: stations,
+  });
+});
+
 //@desc    Update Station details
 //@route   PUT /irctc/v1/station/:id
 //@access  Private
@@ -44,7 +56,7 @@ exports.updateStation = asyncHandler(async (req, res, next) => {
     runValidators: true,
   });
 
-  req.status(200).json({
+  res.status(200).json({
     success: true,
     data: station,
   });
@@ -71,8 +83,23 @@ exports.deleteStation = asyncHandler(async (req, res, next) => {
 
   station.remove();
 
-  req.status(200).json({
+  res.status(200).json({
     success: true,
     data: {},
+  });
+});
+
+//@desc    Get station id
+//@route   POST /irctc/v1/station/search
+//@access  Public
+
+exports.getStationId = asyncHandler(async (req, res, next) => {
+  let station = await Station.findOne({ name: req.body.name });
+
+  const id = station._id;
+
+  res.status(200).json({
+    success: true,
+    data: id,
   });
 });

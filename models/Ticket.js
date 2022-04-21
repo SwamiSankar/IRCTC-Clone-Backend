@@ -43,36 +43,44 @@ const TicketSchema = new mongoose.Schema({
 
 TicketSchema.pre('save', async function (next) {
   console.log(`Availability is reduced by ${this.passengers.length}`);
-  const availabilityObject = await Seats.findOne({
+  let availabilityObject = await Seats.findOne({
     train: this.train,
     date: this.date,
   });
 
   let availability = availabilityObject.seats;
 
-  await Seats.findOneAndUpdate({
-    train: this.train,
-    date: this.date,
-    seats: availability - this.passengers.length,
-  });
+  let id = availabilityObject._id;
+
+  availabilityObject = await Seats.findByIdAndUpdate(
+    id,
+    {
+      seats: availability - this.passengers.length,
+    },
+    { new: true, runValidators: true }
+  );
 
   next();
 });
 
 TicketSchema.pre('remove', async function (next) {
   console.log(`Availability is increased by ${this.passengers.length}`);
-  const availabilityObject = await Seats.findOne({
+  let availabilityObject = await Seats.findOne({
     train: this.train,
     date: this.date,
   });
 
   let availability = availabilityObject.seats;
 
-  await Seats.findOneAndUpdate({
-    train: this.train,
-    date: this.date,
-    seats: availability + this.passengers.length,
-  });
+  let id = availabilityObject._id;
+
+  availabilityObject = await Seats.findByIdAndUpdate(
+    id,
+    {
+      seats: availability + this.passengers.length,
+    },
+    { new: true, runValidators: true }
+  );
 
   next();
 });

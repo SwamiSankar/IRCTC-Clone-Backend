@@ -44,6 +44,21 @@ exports.createSchedule = asyncHandler(async (req, res, next) => {
   });
 });
 
+//@desc    Get the train schedule for a particular train and station
+//@route   GET /irctc/v1/trains/:trainId/schedule/:stationId
+//@access  Public
+exports.getScheduleforStation = asyncHandler(async (req, res, next) => {
+  const schedule = await Schedule.findOne({
+    train: req.params.trainId,
+    station: req.params.stationId,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: schedule,
+  });
+});
+
 //@desc    Get the train schedule
 //@route   GET /irctc/v1/trains/:trainId/schedule
 //@access  Public

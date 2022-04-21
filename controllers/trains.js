@@ -57,7 +57,6 @@ exports.getTrainBetweenStations = asyncHandler(async (req, res, next) => {
   );
 
   const findAvail = async (trainArray) => {
-    console.log(trainArray);
     for (const train in trainArray) {
       trainArray[train].availability = await Seats.findOne({
         train: trainArray[train].id,

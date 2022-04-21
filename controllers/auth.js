@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
+const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 //@desc    Resgister an user
@@ -100,6 +101,10 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 const sendTokenResponse = (user, statusCode, res) => {
   //Create Token
   const token = user.getSignedJwtToken();
+
+  const decode = jwt.verify(token, process.env.JWT_SECRET);
+
+  console.log(decode);
 
   const options = {
     expires: new Date(
